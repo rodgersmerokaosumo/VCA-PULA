@@ -1,0 +1,60 @@
+question,question_text,row_number,response_id,current_value,error_reason,valid_options
+Q3,VCA full name,2,f350ad3b-bf18-4488-9a43-b0b3a95dfb2b,,Missing value,Required text field
+Q3,VCA full name,3,27538665-6b5a-48fa-82ac-4bf2a235bc55,,Missing value,Required text field
+Q3,VCA full name,4,5b0052ef-41a0-4ecb-84e5-d394982ab802,,Missing value,Required text field
+Q3,VCA full name,6,bf7dee84-17d5-49cb-9e97-70fc72c393c4,,Missing value,Required text field
+Q3,VCA full name,8,3b261a51-8682-42ab-8f11-99a941747bb4,,Missing value,Required text field
+Q3,VCA full name,9,821439a4-f821-4df8-9260-a53786ee98f3,,Missing value,Required text field
+Q3,VCA full name,10,9d4b9b9a-eed8-4568-a0bc-e841ffcfe60c,,Missing value,Required text field
+Q4,VCA age,2,f350ad3b-bf18-4488-9a43-b0b3a95dfb2b,,Missing value,18-99
+Q4,VCA age,3,27538665-6b5a-48fa-82ac-4bf2a235bc55,,Missing value,18-99
+Q4,VCA age,5,5d5d99ea-9b8b-492e-98ab-5ff9bdc73cbb,,Missing value,18-99
+Q4,VCA age,40,31ff9229-c28e-4468-a3fe-75a361906543,1,Invalid age: 1. Must be between 18 and 99,18-99
+Q5,VCA gender,2,f350ad3b-bf18-4488-9a43-b0b3a95dfb2b,,Missing value,"Male, Female"
+Q5,VCA gender,3,27538665-6b5a-48fa-82ac-4bf2a235bc55,,Missing value,"Male, Female"
+Q6,VCA phone number,2,f350ad3b-bf18-4488-9a43-b0b3a95dfb2b,,Missing value,Required phone number
+Q6,VCA phone number,3,27538665-6b5a-48fa-82ac-4bf2a235bc55,,Missing value,Required phone number
+Q6,VCA phone number,4,5b0052ef-41a0-4ecb-84e5-d394982ab802,,Missing value,Required phone number
+Q6,VCA phone number,6,bf7dee84-17d5-49cb-9e97-70fc72c393c4,,Missing value,Required phone number
+Q6,VCA phone number,8,3b261a51-8682-42ab-8f11-99a941747bb4,,Missing value,Required phone number
+Q6,VCA phone number,9,821439a4-f821-4df8-9260-a53786ee98f3,,Missing value,Required phone number
+Q6,VCA phone number,10,9d4b9b9a-eed8-4568-a0bc-e841ffcfe60c,,Missing value,Required phone number
+Q7,VCA email,2,f350ad3b-bf18-4488-9a43-b0b3a95dfb2b,na,Invalid email format: 'na',Valid email format (optional)
+Q7,VCA email,3,27538665-6b5a-48fa-82ac-4bf2a235bc55,kiyagapius7gmail.com,Invalid email format: 'kiyagapius7gmail.com',Valid email format (optional)
+Q7,VCA email,5,5d5d99ea-9b8b-492e-98ab-5ff9bdc73cbb,h,Invalid email format: 'h',Valid email format (optional)
+Q7,VCA email,6,bf7dee84-17d5-49cb-9e97-70fc72c393c4,na,Invalid email format: 'na',Valid email format (optional)
+Q7,VCA email,7,ea96c77e-41fd-439c-8de2-62915c19516a,sembajwesamuel4gmail.com,Invalid email format: 'sembajwesamuel4gmail.com',Valid email format (optional)
+Q7,VCA email,8,3b261a51-8682-42ab-8f11-99a941747bb4,jaykisaakyesolomongmail.com,Invalid email format: 'jaykisaakyesolomongmail.com',Valid email format (optional)
+Q7,VCA email,9,821439a4-f821-4df8-9260-a53786ee98f3,na,Invalid email format: 'na',Valid email format (optional)
+Q7,VCA email,10,9d4b9b9a-eed8-4568-a0bc-e841ffcfe60c,kimazemosesgmail.com,Invalid email format: 'kimazemosesgmail.com',Valid email format (optional)
+Q7,VCA email,11,22d0d068-525a-4102-bc6d-6025a42150ba,saggmail.com,Invalid email format: 'saggmail.com',Valid email format (optional)
+Q7,VCA email,12,ffaadb50-c86f-488b-9594-d550b81afd19,fetgmail.com,Invalid email format: 'fetgmail.com',Valid email format (optional)
+Q7,VCA email,13,7faccb63-4878-49a6-86aa-70a5ba2530e3,asgmail.com,Invalid email format: 'asgmail.com',Valid email format (optional)
+Q7,VCA email,14,d5a45e38-ecd2-440f-abb7-95418efca0c6,rogerskanyesigyegmail.com,Invalid email format: 'rogerskanyesigyegmail.com',Valid email format (optional)
+Q7,VCA email,15,3eda3e4a-bb49-4067-ae63-e425a92dd682,na,Invalid email format: 'na',Valid email format (optional)
+Q7,VCA email,16,5893e974-35a6-4539-a2f6-873668d706db,na,Invalid email format: 'na',Valid email format (optional)
+Q7,VCA email,17,1eb19631-cd69-436f-8112-6b6990c400f4,dfzgmail.com,Invalid email format: 'dfzgmail.com',Valid email format (optional)
+Q7,VCA email,18,768f9a5a-bfb0-41cb-ac6b-5c4ea939fcac,oyara505gmail.com,Invalid email format: 'oyara505gmail.com',Valid email format (optional)
+Q7,VCA email,19,963d74a2-c3cb-45e1-96c6-de68a799d952,dougmail.com,Invalid email format: 'dougmail.com',Valid email format (optional)
+Q7,VCA email,20,843bc49b-9e56-43f1-ad44-fea7d792507c,andrewsentamu,Invalid email format: 'andrewsentamu',Valid email format (optional)
+Q7,VCA email,21,605f3bc0-117e-44b6-9835-2a36bb10fade,babettyragmail.com,Invalid email format: 'babettyragmail.com',Valid email format (optional)
+Q7,VCA email,22,11ad481a-08bc-4b20-bb32-8062f3d132ab,kadisajimmyyahoo.com,Invalid email format: 'kadisajimmyyahoo.com',Valid email format (optional)
+Q7,VCA email,23,28433b76-bb7f-4aeb-83cd-dfbc7494eefe,derrickkiggundu18gmail.com,Invalid email format: 'derrickkiggundu18gmail.com',Valid email format (optional)
+Q7,VCA email,24,1e090148-cb2f-4d11-ace0-92d4e0bdb468,derrickalinaitwe56gmial.com,Invalid email format: 'derrickalinaitwe56gmial.com',Valid email format (optional)
+Q7,VCA email,25,dd05a9ec-c782-449f-a6df-7874a449abb3,nelsonpula.io,Invalid email format: 'nelsonpula.io',Valid email format (optional)
+Q7,VCA email,26,e6288ef6-39d7-483f-888f-40667c7f019d,daakialexgmail.com,Invalid email format: 'daakialexgmail.com',Valid email format (optional)
+Q7,VCA email,27,8d32857a-06f1-4d24-8e2d-448838a48bd2,tumushabealicegmail.com,Invalid email format: 'tumushabealicegmail.com',Valid email format (optional)
+Q7,VCA email,28,37cfec1a-9d29-44b1-acb3-c0a9509d521d,nakayalerosegmail.com,Invalid email format: 'nakayalerosegmail.com',Valid email format (optional)
+Q7,VCA email,29,47e01f55-1cde-4393-90df-6bffc04e2842,naavahenriettagmail.com,Invalid email format: 'naavahenriettagmail.com',Valid email format (optional)
+Q7,VCA email,30,b1056d9d-0003-490f-9a9e-2b592004d370,NA,Invalid email format: 'NA',Valid email format (optional)
+Q7,VCA email,31,f75a8d11-a304-477a-a887-354bec322380,oyara505gmail.com,Invalid email format: 'oyara505gmail.com',Valid email format (optional)
+Q7,VCA email,32,baf76336-5e74-431a-8dde-0f4ea60fff6a,gwabugegmail.com,Invalid email format: 'gwabugegmail.com',Valid email format (optional)
+Q7,VCA email,33,faadf1c1-92f1-4fb7-8153-6575c0fff501,massarichard8896gmail.com,Invalid email format: 'massarichard8896gmail.com',Valid email format (optional)
+Q7,VCA email,34,04dfc5a4-a00b-4da9-bb4c-d8a0308d8047,nelmugaggagmail.com,Invalid email format: 'nelmugaggagmail.com',Valid email format (optional)
+Q7,VCA email,35,18c54fc6-b157-42ec-84f3-6a7ab42027b0,sbanura5gmail.com,Invalid email format: 'sbanura5gmail.com',Valid email format (optional)
+Q7,VCA email,36,de0cf1e0-b2d7-480b-b505-6a969ed19135,okellomathewgmail.com,Invalid email format: 'okellomathewgmail.com',Valid email format (optional)
+Q7,VCA email,37,db3547db-9005-4765-954f-a9933710e196,watiyahoo.com,Invalid email format: 'watiyahoo.com',Valid email format (optional)
+Q7,VCA email,38,3ad61571-1790-4c6e-bd30-0c08ca428870,na,Invalid email format: 'na',Valid email format (optional)
+Q7,VCA email,39,800ff6d2-b70e-4c3f-944c-c35f1f54c464,y,Invalid email format: 'y',Valid email format (optional)
+Q7,VCA email,40,31ff9229-c28e-4468-a3fe-75a361906543,g,Invalid email format: 'g',Valid email format (optional)
+Q12,TIN number,20,843bc49b-9e56-43f1-ad44-fea7d792507c,,Missing TIN number (required when Q11=Yes),Required when Q11=Yes
