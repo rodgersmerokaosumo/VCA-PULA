@@ -97,14 +97,47 @@ class VCA_DQC:
         if len(query_lines) > 5:
             print(f"       ...")
         
-        # For Q1: Extract vca_type data
-        if query_name == 'Q1':
+        # For Q1_Q12: Extract all VCA details data
+        if query_name in ['Q1_Q12', 'Q1_Q2', 'Q1', 'Q2']:
             # Simulate the SQL query using pandas
             result_df = pd.DataFrame({
                 'row_number': range(1, len(self.data) + 1),
                 'response_id': self.data['response_id'],
                 'vca_type': self.data['responses_parsed'].apply(
                     lambda x: x.get('q_type_of_vca') if isinstance(x, dict) else None
+                ),
+                'vca_position': self.data['responses_parsed'].apply(
+                    lambda x: x.get('q_vca_position') if isinstance(x, dict) else None
+                ),
+                'vca_full_name': self.data['responses_parsed'].apply(
+                    lambda x: x.get('q_candidate_info', {}).get('name') if isinstance(x, dict) else None
+                ),
+                'vca_age': self.data['responses_parsed'].apply(
+                    lambda x: x.get('q_vca_age') if isinstance(x, dict) else None
+                ),
+                'vca_gender': self.data['responses_parsed'].apply(
+                    lambda x: x.get('q_vca_gender') if isinstance(x, dict) else None
+                ),
+                'vca_phone_number': self.data['responses_parsed'].apply(
+                    lambda x: x.get('q_candidate_info', {}).get('phone') if isinstance(x, dict) else None
+                ),
+                'vca_email': self.data['responses_parsed'].apply(
+                    lambda x: x.get('q_vca_email_address') if isinstance(x, dict) else None
+                ),
+                'has_national_id': self.data['responses_parsed'].apply(
+                    lambda x: x.get('q_vca_id_number_available') if isinstance(x, dict) else None
+                ),
+                'national_id_number': self.data['responses_parsed'].apply(
+                    lambda x: x.get('q_vca_id_number') if isinstance(x, dict) else None
+                ),
+                'photo_id_card': self.data['responses_parsed'].apply(
+                    lambda x: x.get('q_photo_id_card') if isinstance(x, dict) else None
+                ),
+                'legally_registered': self.data['responses_parsed'].apply(
+                    lambda x: x.get('q_legally_registered') if isinstance(x, dict) else None
+                ),
+                'tin_number': self.data['responses_parsed'].apply(
+                    lambda x: x.get('q_tin_number') if isinstance(x, dict) else None
                 )
             })
             
@@ -132,8 +165,8 @@ class VCA_DQC:
         # Define valid values
         valid_types = ['Individual', 'Registered Company', 'Cooperative']
         
-        # Execute SQL query to get data for Q1
-        df_check = self.execute_sql_query('Q1')
+        # Execute SQL query to get data for Q1_Q12
+        df_check = self.execute_sql_query('Q1_Q12')
         
         if df_check is None or df_check.empty:
             print("[ERROR] No data returned from SQL query")
@@ -193,6 +226,466 @@ class VCA_DQC:
         
         return failed_q1
     
+    def dqc_q2_vca_position(self):
+        """
+        DQC for Question 2: What is the position of the VCA representative?
+        Valid values: Owner, Manager
+        """
+        print("\n" + "="*60)
+        print("DQC CHECK: Q2 - VCA Representative Position")
+        print("="*60)
+        
+        # Define valid values
+        valid_positions = ['Owner', 'Manager']
+        
+        # Execute SQL query to get data for Q1_Q12
+        df_check = self.execute_sql_query('Q1_Q12')
+        
+        if df_check is None or df_check.empty:
+            print("[ERROR] No data returned from SQL query")
+            return
+        
+        # Add Excel row number for reference
+        df_check['row_index'] = df_check.index + 2  # +2 for Excel (header + 0-index)
+        
+        # Perform checks
+        failed_q2 = []
+        
+        for idx, row in df_check.iterrows():
+            error_reason = None
+            
+            # Check if value is missing
+            if pd.isna(row['vca_position']) or row['vca_position'] == '':
+                error_reason = "Missing value"
+            
+            # Check if value is valid (case-insensitive)
+            elif str(row['vca_position']).strip() not in valid_positions:
+                # Try case-insensitive match
+                position_lower = str(row['vca_position']).strip().lower()
+                valid_lower = [v.lower() for v in valid_positions]
+                
+                if position_lower not in valid_lower:
+                    error_reason = f"Invalid value: '{row['vca_position']}'. Must be one of: {', '.join(valid_positions)}"
+            
+            # If failed, add to failed list
+            if error_reason:
+                failed_q2.append({
+                    'question': 'Q2',
+                    'question_text': 'What is the position of the VCA representative?',
+                    'row_number': row['row_index'],
+                    'response_id': row['response_id'],
+                    'current_value': row['vca_position'],
+                    'error_reason': error_reason,
+                    'valid_options': ', '.join(valid_positions)
+                })
+        
+        # Add to overall failed checks
+        self.failed_checks.extend(failed_q2)
+        
+        # Print summary
+        total_records = len(df_check)
+        failed_count = len(failed_q2)
+        passed_count = total_records - failed_count
+        
+        print(f"\n[DQC RESULTS]")
+        print(f"  Total records checked: {total_records}")
+        print(f"  [PASS] Passed: {passed_count} ({passed_count/total_records*100:.1f}%)")
+        print(f"  [FAIL] Failed: {failed_count} ({failed_count/total_records*100:.1f}%)")
+        
+        if failed_count > 0:
+            print(f"\nFailed records preview (first 5):")
+            for fail in failed_q2[:5]:
+                print(f"  Row {fail['row_number']}: {fail['error_reason']}")
+        
+        return failed_q2
+    
+    def dqc_q3_vca_name(self):
+        """DQC for Question 3: VCA full name (required text)"""
+        print("\n" + "="*60)
+        print("DQC CHECK: Q3 - VCA Full Name")
+        print("="*60)
+        
+        df_check = self.execute_sql_query('Q1_Q12')
+        if df_check is None or df_check.empty:
+            print("[ERROR] No data returned from SQL query")
+            return
+        
+        df_check['row_index'] = df_check.index + 2
+        failed_q3 = []
+        
+        for idx, row in df_check.iterrows():
+            error_reason = None
+            if pd.isna(row['vca_full_name']) or str(row['vca_full_name']).strip() == '':
+                error_reason = "Missing value"
+            
+            if error_reason:
+                failed_q3.append({
+                    'question': 'Q3',
+                    'question_text': 'VCA full name',
+                    'row_number': row['row_index'],
+                    'response_id': row['response_id'],
+                    'current_value': row['vca_full_name'],
+                    'error_reason': error_reason,
+                    'valid_options': 'Required text field'
+                })
+        
+        self.failed_checks.extend(failed_q3)
+        self._print_check_summary(df_check, failed_q3, "Q3")
+        return failed_q3
+    
+    def dqc_q4_vca_age(self):
+        """DQC for Question 4: VCA age (numeric 18-99)"""
+        print("\n" + "="*60)
+        print("DQC CHECK: Q4 - VCA Age")
+        print("="*60)
+        
+        df_check = self.execute_sql_query('Q1_Q12')
+        if df_check is None or df_check.empty:
+            print("[ERROR] No data returned from SQL query")
+            return
+        
+        df_check['row_index'] = df_check.index + 2
+        failed_q4 = []
+        
+        for idx, row in df_check.iterrows():
+            error_reason = None
+            if pd.isna(row['vca_age']) or row['vca_age'] == '':
+                error_reason = "Missing value"
+            else:
+                try:
+                    age = int(row['vca_age'])
+                    if age < 18 or age > 99:
+                        error_reason = f"Invalid age: {age}. Must be between 18 and 99"
+                except:
+                    error_reason = f"Invalid value: '{row['vca_age']}'. Must be numeric between 18-99"
+            
+            if error_reason:
+                failed_q4.append({
+                    'question': 'Q4',
+                    'question_text': 'VCA age',
+                    'row_number': row['row_index'],
+                    'response_id': row['response_id'],
+                    'current_value': row['vca_age'],
+                    'error_reason': error_reason,
+                    'valid_options': '18-99'
+                })
+        
+        self.failed_checks.extend(failed_q4)
+        self._print_check_summary(df_check, failed_q4, "Q4")
+        return failed_q4
+    
+    def dqc_q5_vca_gender(self):
+        """DQC for Question 5: VCA gender (Male/Female)"""
+        print("\n" + "="*60)
+        print("DQC CHECK: Q5 - VCA Gender")
+        print("="*60)
+        
+        valid_genders = ['Male', 'Female']
+        df_check = self.execute_sql_query('Q1_Q12')
+        
+        if df_check is None or df_check.empty:
+            print("[ERROR] No data returned from SQL query")
+            return
+        
+        df_check['row_index'] = df_check.index + 2
+        failed_q5 = []
+        
+        for idx, row in df_check.iterrows():
+            error_reason = None
+            if pd.isna(row['vca_gender']) or row['vca_gender'] == '':
+                error_reason = "Missing value"
+            elif str(row['vca_gender']).strip() not in valid_genders:
+                error_reason = f"Invalid value: '{row['vca_gender']}'. Must be one of: {', '.join(valid_genders)}"
+            
+            if error_reason:
+                failed_q5.append({
+                    'question': 'Q5',
+                    'question_text': 'VCA gender',
+                    'row_number': row['row_index'],
+                    'response_id': row['response_id'],
+                    'current_value': row['vca_gender'],
+                    'error_reason': error_reason,
+                    'valid_options': ', '.join(valid_genders)
+                })
+        
+        self.failed_checks.extend(failed_q5)
+        self._print_check_summary(df_check, failed_q5, "Q5")
+        return failed_q5
+    
+    def dqc_q6_vca_phone(self):
+        """DQC for Question 6: VCA phone number (required)"""
+        print("\n" + "="*60)
+        print("DQC CHECK: Q6 - VCA Phone Number")
+        print("="*60)
+        
+        df_check = self.execute_sql_query('Q1_Q12')
+        if df_check is None or df_check.empty:
+            print("[ERROR] No data returned from SQL query")
+            return
+        
+        df_check['row_index'] = df_check.index + 2
+        failed_q6 = []
+        
+        for idx, row in df_check.iterrows():
+            error_reason = None
+            if pd.isna(row['vca_phone_number']) or str(row['vca_phone_number']).strip() == '':
+                error_reason = "Missing value"
+            
+            if error_reason:
+                failed_q6.append({
+                    'question': 'Q6',
+                    'question_text': 'VCA phone number',
+                    'row_number': row['row_index'],
+                    'response_id': row['response_id'],
+                    'current_value': row['vca_phone_number'],
+                    'error_reason': error_reason,
+                    'valid_options': 'Required phone number'
+                })
+        
+        self.failed_checks.extend(failed_q6)
+        self._print_check_summary(df_check, failed_q6, "Q6")
+        return failed_q6
+    
+    def dqc_q7_vca_email(self):
+        """DQC for Question 7: VCA email (optional, but validate format if provided)"""
+        print("\n" + "="*60)
+        print("DQC CHECK: Q7 - VCA Email")
+        print("="*60)
+        
+        df_check = self.execute_sql_query('Q1_Q12')
+        if df_check is None or df_check.empty:
+            print("[ERROR] No data returned from SQL query")
+            return
+        
+        df_check['row_index'] = df_check.index + 2
+        failed_q7 = []
+        
+        import re
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        
+        for idx, row in df_check.iterrows():
+            error_reason = None
+            # Email is optional, only validate if provided
+            if not pd.isna(row['vca_email']) and str(row['vca_email']).strip() != '':
+                email = str(row['vca_email']).strip()
+                if not re.match(email_pattern, email):
+                    error_reason = f"Invalid email format: '{email}'"
+            
+            if error_reason:
+                failed_q7.append({
+                    'question': 'Q7',
+                    'question_text': 'VCA email',
+                    'row_number': row['row_index'],
+                    'response_id': row['response_id'],
+                    'current_value': row['vca_email'],
+                    'error_reason': error_reason,
+                    'valid_options': 'Valid email format (optional)'
+                })
+        
+        self.failed_checks.extend(failed_q7)
+        self._print_check_summary(df_check, failed_q7, "Q7")
+        return failed_q7
+    
+    def dqc_q8_has_national_id(self):
+        """DQC for Question 8: Does VCA have National ID (Yes/No)"""
+        print("\n" + "="*60)
+        print("DQC CHECK: Q8 - Has National ID")
+        print("="*60)
+        
+        valid_values = ['Yes', 'No']
+        df_check = self.execute_sql_query('Q1_Q12')
+        
+        if df_check is None or df_check.empty:
+            print("[ERROR] No data returned from SQL query")
+            return
+        
+        df_check['row_index'] = df_check.index + 2
+        failed_q8 = []
+        
+        for idx, row in df_check.iterrows():
+            error_reason = None
+            if pd.isna(row['has_national_id']) or row['has_national_id'] == '':
+                error_reason = "Missing value"
+            elif str(row['has_national_id']).strip() not in valid_values:
+                error_reason = f"Invalid value: '{row['has_national_id']}'. Must be Yes or No"
+            
+            if error_reason:
+                failed_q8.append({
+                    'question': 'Q8',
+                    'question_text': 'Does VCA have National ID?',
+                    'row_number': row['row_index'],
+                    'response_id': row['response_id'],
+                    'current_value': row['has_national_id'],
+                    'error_reason': error_reason,
+                    'valid_options': ', '.join(valid_values)
+                })
+        
+        self.failed_checks.extend(failed_q8)
+        self._print_check_summary(df_check, failed_q8, "Q8")
+        return failed_q8
+    
+    def dqc_q9_national_id_number(self):
+        """DQC for Question 9: National ID number (conditional on Q8=Yes)"""
+        print("\n" + "="*60)
+        print("DQC CHECK: Q9 - National ID Number")
+        print("="*60)
+        
+        df_check = self.execute_sql_query('Q1_Q12')
+        if df_check is None or df_check.empty:
+            print("[ERROR] No data returned from SQL query")
+            return
+        
+        df_check['row_index'] = df_check.index + 2
+        failed_q9 = []
+        
+        for idx, row in df_check.iterrows():
+            error_reason = None
+            # Check conditional logic: if Q8=Yes, Q9 should have value
+            if str(row['has_national_id']).strip() == 'Yes':
+                if pd.isna(row['national_id_number']) or str(row['national_id_number']).strip() == '':
+                    error_reason = "Missing National ID number (required when Q8=Yes)"
+            
+            if error_reason:
+                failed_q9.append({
+                    'question': 'Q9',
+                    'question_text': 'National ID number',
+                    'row_number': row['row_index'],
+                    'response_id': row['response_id'],
+                    'current_value': row['national_id_number'],
+                    'error_reason': error_reason,
+                    'valid_options': 'Required when Q8=Yes'
+                })
+        
+        self.failed_checks.extend(failed_q9)
+        self._print_check_summary(df_check, failed_q9, "Q9")
+        return failed_q9
+    
+    def dqc_q10_photo_id_card(self):
+        """DQC for Question 10: Photo of National ID (conditional on Q8=Yes)"""
+        print("\n" + "="*60)
+        print("DQC CHECK: Q10 - Photo of National ID")
+        print("="*60)
+        
+        df_check = self.execute_sql_query('Q1_Q12')
+        if df_check is None or df_check.empty:
+            print("[ERROR] No data returned from SQL query")
+            return
+        
+        df_check['row_index'] = df_check.index + 2
+        failed_q10 = []
+        
+        for idx, row in df_check.iterrows():
+            error_reason = None
+            # Check conditional logic: if Q8=Yes, Q10 should be True
+            if str(row['has_national_id']).strip() == 'Yes':
+                if pd.isna(row['photo_id_card']) or row['photo_id_card'] != True:
+                    error_reason = "Missing photo of National ID (required when Q8=Yes)"
+            
+            if error_reason:
+                failed_q10.append({
+                    'question': 'Q10',
+                    'question_text': 'Photo of National ID',
+                    'row_number': row['row_index'],
+                    'response_id': row['response_id'],
+                    'current_value': row['photo_id_card'],
+                    'error_reason': error_reason,
+                    'valid_options': 'Required when Q8=Yes'
+                })
+        
+        self.failed_checks.extend(failed_q10)
+        self._print_check_summary(df_check, failed_q10, "Q10")
+        return failed_q10
+    
+    def dqc_q11_legally_registered(self):
+        """DQC for Question 11: Is VCA legally registered (Yes/No)"""
+        print("\n" + "="*60)
+        print("DQC CHECK: Q11 - Legally Registered")
+        print("="*60)
+        
+        valid_values = ['Yes', 'No']
+        df_check = self.execute_sql_query('Q1_Q12')
+        
+        if df_check is None or df_check.empty:
+            print("[ERROR] No data returned from SQL query")
+            return
+        
+        df_check['row_index'] = df_check.index + 2
+        failed_q11 = []
+        
+        for idx, row in df_check.iterrows():
+            error_reason = None
+            if pd.isna(row['legally_registered']) or row['legally_registered'] == '':
+                error_reason = "Missing value"
+            elif str(row['legally_registered']).strip() not in valid_values:
+                error_reason = f"Invalid value: '{row['legally_registered']}'. Must be Yes or No"
+            
+            if error_reason:
+                failed_q11.append({
+                    'question': 'Q11',
+                    'question_text': 'Is VCA legally registered?',
+                    'row_number': row['row_index'],
+                    'response_id': row['response_id'],
+                    'current_value': row['legally_registered'],
+                    'error_reason': error_reason,
+                    'valid_options': ', '.join(valid_values)
+                })
+        
+        self.failed_checks.extend(failed_q11)
+        self._print_check_summary(df_check, failed_q11, "Q11")
+        return failed_q11
+    
+    def dqc_q12_tin_number(self):
+        """DQC for Question 12: TIN number (conditional on Q11=Yes)"""
+        print("\n" + "="*60)
+        print("DQC CHECK: Q12 - TIN Number")
+        print("="*60)
+        
+        df_check = self.execute_sql_query('Q1_Q12')
+        if df_check is None or df_check.empty:
+            print("[ERROR] No data returned from SQL query")
+            return
+        
+        df_check['row_index'] = df_check.index + 2
+        failed_q12 = []
+        
+        for idx, row in df_check.iterrows():
+            error_reason = None
+            # Check conditional logic: if Q11=Yes, Q12 should have value
+            if str(row['legally_registered']).strip() == 'Yes':
+                if pd.isna(row['tin_number']) or str(row['tin_number']).strip() == '':
+                    error_reason = "Missing TIN number (required when Q11=Yes)"
+            
+            if error_reason:
+                failed_q12.append({
+                    'question': 'Q12',
+                    'question_text': 'TIN number',
+                    'row_number': row['row_index'],
+                    'response_id': row['response_id'],
+                    'current_value': row['tin_number'],
+                    'error_reason': error_reason,
+                    'valid_options': 'Required when Q11=Yes'
+                })
+        
+        self.failed_checks.extend(failed_q12)
+        self._print_check_summary(df_check, failed_q12, "Q12")
+        return failed_q12
+    
+    def _print_check_summary(self, df_check, failed_list, question_num):
+        """Helper method to print check summary"""
+        total_records = len(df_check)
+        failed_count = len(failed_list)
+        passed_count = total_records - failed_count
+        
+        print(f"\n[DQC RESULTS]")
+        print(f"  Total records checked: {total_records}")
+        print(f"  [PASS] Passed: {passed_count} ({passed_count/total_records*100:.1f}%)")
+        print(f"  [FAIL] Failed: {failed_count} ({failed_count/total_records*100:.1f}%)")
+        
+        if failed_count > 0:
+            print(f"\nFailed records preview (first 5):")
+            for fail in failed_list[:5]:
+                print(f"  Row {fail['row_number']}: {fail['error_reason']}")
+    
     def export_failed_checks(self, output_path=None):
         """Export all failed checks to CSV"""
         if not self.failed_checks:
@@ -224,13 +717,19 @@ class VCA_DQC:
         print("RUNNING ALL DQC CHECKS")
         print("="*60)
         
-        # Run Q1 check
+        # Run all Q1-Q12 checks
         self.dqc_q1_vca_type()
-        
-        # Add more checks here as we implement them
-        # self.dqc_q2_vca_position()
-        # self.dqc_q3_vca_name()
-        # etc...
+        self.dqc_q2_vca_position()
+        self.dqc_q3_vca_name()
+        self.dqc_q4_vca_age()
+        self.dqc_q5_vca_gender()
+        self.dqc_q6_vca_phone()
+        self.dqc_q7_vca_email()
+        self.dqc_q8_has_national_id()
+        self.dqc_q9_national_id_number()
+        self.dqc_q10_photo_id_card()
+        self.dqc_q11_legally_registered()
+        self.dqc_q12_tin_number()
         
         # Export failed checks
         self.export_failed_checks()
@@ -247,8 +746,5 @@ if __name__ == "__main__":
         # Create DQC instance
         dqc = VCA_DQC(csv_file)
         
-        # Run specific check for Q1
-        dqc.dqc_q1_vca_type()
-        
-        # Export failed checks
-        dqc.export_failed_checks()
+        # Run all DQC checks
+        dqc.run_all_checks()
